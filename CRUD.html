@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ-панель</title>
+  <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="description" content="Наш маленький ломбард, всегда готовый принять ваш хлам.">
+    <!-- Гугл шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <style>
+    .custom-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #161616 0%, #074d31 100%);
+        }
+        .btn-hover-effect {
+            transition: all 0.3s ease;
+        }
+        .btn-hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(63, 153, 115, 0.1);
+        }
+</style>
+</head>
+ <body class = "bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <nav>
+        <nav>
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                <!-- Лого(самого логотипа нету, потому что) -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center">
+                    </div>
+                    <span class="custom-font text-2xl font-bold text-gray-400">СдамОтдам</span>
+                </div>
+                
+        </nav>
+    </nav>
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Управление продуктами</h2>
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+          <h3 id="form-title">Добавить</h3>  
+            <div class="form-group">
+                <label></label>
+                <input type="text" id="" placeholder="">
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="btn-add"
+            onclick="addItem()">Добавить</button>
+
+            <button class="btn-update"
+            onclick="updateItem()"
+            style="display:none">Обновить</button>
+
+            <button class="btn-delete"
+            onclick="deleteItem()"
+            style="display:none">Удалить</button>
+        </div>
+        <div class="items-list"
+            id="items-container">
+        </div>
+    </div>
+        <script>
+            let items = [];
+            let editId = null;
+
+            function addItem() 
+            {
+                const products = document.getElementById("products").value;
+                const clients = document.getElementById("clients").value;
+                const valuers = document.getElementById("valuers").value;
+                const pledgeAgreements = document.getElementById("pledge agreements").value;
+
+                if( !products !clients !valuers || !pledgeAgreements)
+                {
+                    alert("Заполни все поля");
+                    return;
+                }
+
+                const newItem = {
+                    id: Date.now(),
+                    product: products,
+                    client: clients,
+                    valuer: valuers,
+                    pledgeAgreements: pledgeAgreements
+                }
+                
+                items.push(newItem);
+                renderItems();
+                clearForm();
+            }
+
+            function editItem(id)
+            {
+                const item = items.find(item => item.id === id)
+                if (!item) return;
+
+                editingId = id;
+
+                document.getElementById("products").value = item.products;
+                document.getElementById("clients").value = item.clients;
+                document.getElementById("valuers").value = item.valuers;
+                document.getElementById("pledge agreements").value = item.pledgeAgreements;
+
+                document.querySelector("btn-add").style.display = 'none';
+                document.querySelector("btn-update").style.display = 'inline-block';
+                document.querySelector("btn-delete").style.display = 'inline-block';
+
+                document.getElementById('form-title').textContent = 'Редактировать элемент';
+            }
+            function updateItem() 
+            {
+                if(editId === null) return;
+
+                const itemIndex = items.findIndex(item => item.id === editId)
+                if(itemIndex === -1) return;
+
+                items[itemIndex] = {
+                    id: editId,
+                };
+
+                editId = null;
+                renderItems();
+                clearForm();
+
+                document.querySelector("btn-add").style.display = 'inline-block';
+                document.querySelector("btn-update").style.display = 'none';
+                document.querySelector("btn-delete").style.display = 'none';
+
+                document.getElementById('form-title').textContent = 'Добавить элемент';
+            }
+
+            function deleteItem(id) {
+                if (confirm('Удалить?')) {
+                    items = items.filter(item => item.id !== id);
+                    renderItems();
+                }
+            }
+
+            function cancelEdit() {
+                editId = null;
+                clearForm();
+
+                document.querySelector("btn-add").style.display = 'inline-block';
+                document.querySelector("btn-update").style.display = 'none';
+                document.querySelector("btn-delete").style.display = 'none';
+
+                document.getElementById('form-title').textContent = 'Отменить';
+            }
+
+            function clearForm() {
+                document.getElementById("products").value = "";
+                document.getElementById("clients").value = "";
+                document.getElementById("valuers").value = "";
+                document.getElementById("pledge agreements").value = "";
+
+            }
+
+            function renderItems() {
+                const container = document.getElementById('items-containter');
+            
+                if(items.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; padding:20px;">Нет элементов</p>';
+                    return;
+                }
+
+            }
+
+            renderItems();
+        </script>
+ </body>
+</html>
