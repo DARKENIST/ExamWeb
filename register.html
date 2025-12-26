@@ -4,37 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta name="description" content="Наш маленький ломбард, всегда готовый принять ваш хлам.">
-    <!-- Гугл шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        .custom-font {
-            font-family: 'Playfair Display', serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #161616 0%, #074d31 100%);
-        }
-        .btn-hover-effect {
-            transition: all 0.3s ease;
-        }
-        .btn-hover-effect:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .input-focus:focus {
-            box-shadow: 0 0 0 3px rgba(63, 153, 115, 0.1);
-        }
-    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
-        <!-- Логотип -->
         <div class="text-center mb-8">
             <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-archive text-white text-2xl"></i>
@@ -43,15 +19,12 @@
             <p class="text-gray-600 mt-2">Создайте новый аккаунт</p>
         </div>
 
-        <!-- Форма регистрации -->
         <div class="bg-white rounded-2xl shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Регистрация</h2>
             
             <form id="registerForm" class="space-y-6">
-                <!-- Сообщения об ошибках/успехе -->
                 <div id="messageContainer" class="hidden p-4 rounded-lg"></div>
                 
-                <!-- Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-envelope mr-2"></i>Email-адрес
@@ -67,10 +40,8 @@
                         >
                         <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
-                    <div id="emailError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Пароль -->
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-lock mr-2"></i>Пароль
@@ -94,10 +65,8 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div id="passwordError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Подтверждение пароля -->
                 <div>
                     <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-lock mr-2"></i>Подтвердите пароль
@@ -121,10 +90,8 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div id="confirmPasswordError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Согласие с условиями -->
                 <div class="flex items-center">
                     <input 
                         type="checkbox" 
@@ -137,7 +104,6 @@
                     </label>
                 </div>
 
-                <!-- Кнопка Зарегистрироваться -->
                 <button
                     type="submit"
                     id="submitBtn"
@@ -147,7 +113,6 @@
                     <i class="fas fa-spinner fa-spin ml-2 hidden" id="spinner"></i>
                 </button>
 
-                <!-- Ссылка на вход -->
                 <div class="text-center mt-4">
                     <p class="text-gray-600">
                         Уже есть аккаунт? 
@@ -159,7 +124,6 @@
             </form>
         </div>
 
-        <!-- Кнопка на главную -->
         <div class="text-center mt-6">
             <a href="index.html" class="text-gray-600 hover:text-gray-800 inline-block">
                 <i class="fas fa-home mr-2"></i>На главную
@@ -167,135 +131,144 @@
         </div>
     </div>
 
-    <!-- Supabase и скрипт регистрации -->
     <script>
-        const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        function showMessage(message, type = 'error') {
-            const messageContainer = document.getElementById('messageContainer');
-            messageContainer.textContent = message;
-            messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
-            messageContainer.classList.remove('hidden');
+        // 1. Подключаем Supabase JS
+        const supabaseScript = document.createElement('script');
+        supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        document.head.appendChild(supabaseScript);
+        
+        supabaseScript.onload = function() {
+            // 2. Конфиг
+            const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
             
-                    messageContainer.classList.add('hidden');
-
-        }
-
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const icon = this.querySelector('i');
+            // 3. Создаем клиент
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-
-        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-            const confirmPasswordInput = document.getElementById('confirmPassword');
-            const icon = this.querySelector('i');
-            
-            if (confirmPasswordInput.type === 'password') {
-                confirmPasswordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                confirmPasswordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const submitBtn = document.getElementById('submitBtn');
-            const submitText = document.getElementById('submitText');
-            const spinner = document.getElementById('spinner');
-            
-            if (!email || !password || !confirmPassword) {
-                showMessage('Пожалуйста, заполните все поля', 'error');
-                return;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showMessage('Пожалуйста, введите корректный email', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('Пароль должен быть не менее 6 символов', 'error');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showMessage('Пароли не совпадают', 'error');
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitText.classList.add('hidden');
-            spinner.classList.remove('hidden');
-            
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password
-                });
-                
-                if (error) throw error;
-                
-                showMessage('Регистрация успешна! Вы можете войти в аккаунт.', 'success');
-                
-                document.getElementById('registerForm').reset();
-                
-                    window.location.href = 'login.html';
-                
-            } catch (error) {
-                console.error('Ошибка регистрации:', error);
-                
-                let errorMessage = 'Ошибка регистрации';
-                
- 
-                if (error.message) {
-                    if (error.message.includes('already registered')) {
-                        errorMessage = 'Пользователь с таким email уже зарегистрирован';
-                    } else if (error.message.includes('weak password')) {
-                        errorMessage = 'Пароль слишком слабый';
-                    } else if (error.message.includes('email already in use')) {
-                        errorMessage = 'Этот email уже используется';
-                    } else {
-                        errorMessage = 'Ошибка регистрации: ' + error.message;
-                    }
-                }
-                
-                showMessage(errorMessage, 'error');
-                
-                submitBtn.disabled = false;
-                submitText.classList.remove('hidden');
-                spinner.classList.add('hidden');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
+            // 4. Проверяем сессию
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
                     window.location.href = 'index.html';
                 }
             });
-        });
+            
+            // 5. Обработка формы
+            document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const submitBtn = document.getElementById('submitBtn');
+                const submitText = document.getElementById('submitText');
+                const spinner = document.getElementById('spinner');
+                const messageContainer = document.getElementById('messageContainer');
+                
+                // Валидация
+                if (!email || !password || !confirmPassword) {
+                    showMessage('Заполните все поля', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showMessage('Пароли не совпадают', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showMessage('Пароль должен быть не менее 6 символов', 'error');
+                    return;
+                }
+                
+                submitBtn.disabled = true;
+                submitText.textContent = 'Регистрация...';
+                spinner.classList.remove('hidden');
+                
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (error) throw error;
+                    
+                    showMessage('Регистрация успешна! Теперь вы можете войти.', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Ошибка регистрации:', error);
+                    
+                    let errorMessage = 'Ошибка регистрации';
+                    if (error.message.includes('already registered') || error.message.includes('already in use')) {
+                        errorMessage = 'Пользователь с таким email уже существует';
+                    } else if (error.message.includes('weak password')) {
+                        errorMessage = 'Пароль слишком слабый';
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                    submitBtn.disabled = false;
+                    submitText.textContent = 'Зарегистрироваться';
+                    spinner.classList.add('hidden');
+                }
+            });
+            
+            // 6. Функция показа сообщений
+            function showMessage(message, type) {
+                const messageContainer = document.getElementById('messageContainer');
+                messageContainer.textContent = message;
+                messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+                messageContainer.classList.remove('hidden');
+                setTimeout(() => messageContainer.classList.add('hidden'), 3000);
+            }
+            
+            // 7. Показать/скрыть пароль
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const icon = this.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+            
+            // 8. Показать/скрыть подтверждение пароля
+            document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+                const confirmPasswordInput = document.getElementById('confirmPassword');
+                const icon = this.querySelector('i');
+                if (confirmPasswordInput.type === 'password') {
+                    confirmPasswordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    confirmPasswordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        };
     </script>
+    
+    <style>
+        .custom-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #161616 0%, #074d31 100%);
+        }
+        .btn-hover-effect {
+            transition: all 0.3s ease;
+        }
+        .btn-hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(63, 153, 115, 0.1);
+        }
+    </style>
 </body>
 </html>
