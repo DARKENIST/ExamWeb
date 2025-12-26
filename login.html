@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Войти</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="description" content="Наш маленький ломбард, всегда готовый принять ваш хлам.">
-    <!-- Гугл шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .custom-font {
@@ -34,7 +30,6 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
-        <!-- Логотип -->
         <div class="text-center mb-8">
             <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-archive text-white text-2xl"></i>
@@ -43,15 +38,12 @@
             <p class="text-gray-600 mt-2">Войдите в свой аккаунт</p>
         </div>
 
-        <!-- Форма авторизации -->
         <div class="bg-white rounded-2xl shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Вход в аккаунт</h2>
             
             <form id="loginForm" class="space-y-6">
-                <!-- Сообщения об ошибках/успехе -->
                 <div id="messageContainer" class="hidden p-4 rounded-lg"></div>
                 
-                <!-- Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-envelope mr-2"></i>Email-адрес
@@ -71,7 +63,6 @@
                     <div id="emailError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Пароль -->
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-lock mr-2"></i>Пароль
@@ -98,7 +89,6 @@
                     <div id="passwordError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Запомнить меня -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <input 
@@ -116,7 +106,6 @@
                     </a>
                 </div>
 
-                <!-- Кнопка Войти -->
                 <button
                     type="submit"
                     id="submitBtn"
@@ -126,18 +115,6 @@
                     <i class="fas fa-spinner fa-spin ml-2 hidden" id="spinner"></i>
                 </button>
 
-                <!-- Тестовая кнопка для диагностики -->
-                <div class="text-center">
-                    <button 
-                        type="button" 
-                        onclick="testConnection()"
-                        class="text-sm text-blue-600 hover:text-blue-800 mt-2"
-                    >
-                        <i class="fas fa-bug mr-1"></i> Проверить подключение к Supabase
-                    </button>
-                </div>
-
-                <!-- Ссылка на регистрацию -->
                 <div class="text-center mt-4">
                     <p class="text-gray-600">
                         Нет аккаунта? 
@@ -149,84 +126,21 @@
             </form>
         </div>
 
-        <!-- Кнопка админ-панели (только для админов после входа) -->
         <div class="text-center mt-6">
             <a href="index.html" class="text-gray-600 hover:text-gray-800 inline-block mr-4">
                 <i class="fas fa-home mr-2"></i>На главную
             </a>
-            <button onclick="testAuth()" class="text-gray-600 hover:text-gray-800 inline-block ml-4">
-                <i class="fas fa-key mr-2"></i>Проверить авторизацию
-            </button>
         </div>
     </div>
 
-    <!-- Supabase и скрипт авторизации-->
     <script>
         const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
 
-        console.log('Инициализация Supabase с URL:', SUPABASE_URL);
-        console.log('Ключ (первые 20 символов):', SUPABASE_ANON_KEY.substring(0, 20) + '...');
-
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('Supabase клиент создан:', supabase);
-
-        // функция для проверки подключения
-        window.testConnection = async function() {
-            console.log('=== НАЧАЛО ДИАГНОСТИКИ ===');
-            
-            try {
-                console.log('1. Тестируем подключение к Supabase API...');
-                
-                const response = await fetch(SUPABASE_URL + '/rest/v1/', {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY
-                    }
-                });
-                
-                console.log('Статус API:', response.status, response.ok ? '✅ OK' : '❌ ERROR');
-                
-                console.log('2. Проверяем таблицу products...');
-                const { data: tableData, error: tableError } = await supabase
-                    .from('products')
-                    .select('*')
-                    .limit(1);
-                
-                if (tableError) {
-                    console.error('❌ Ошибка таблицы:', tableError.message);
-                    alert('Ошибка таблицы: ' + tableError.message + '\n\nСоздайте таблицу products в Supabase!');
-                } else {
-                    console.log('✅ Таблица доступна, записей:', tableData?.length || 0);
-                }
-                
-                console.log('3. Проверяем текущую сессию...');
-                const { data: sessionData } = await supabase.auth.getSession();
-                console.log('Сессия:', sessionData?.session ? '✅ Есть' : '❌ Нет');
-                
-                console.log('4. Проверка CORS...');
-                const corsTest = await fetch(SUPABASE_URL, {
-                    mode: 'cors',
-                    headers: { 'apikey': SUPABASE_ANON_KEY }
-                }).catch(e => e);
-                
-                if (corsTest instanceof Error) {
-                    console.error('❌ CORS ошибка:', corsTest.message);
-                    alert('CORS не настроен! Добавьте в Supabase Settings → API → CORS:\nhttp://localhost:5500\nhttp://localhost:3000\nhttp://127.0.0.1:5500');
-                } else {
-                    console.log('✅ CORS настроен правильно');
-                }
-                
-                console.log('=== ДИАГНОСТИКА ЗАВЕРШЕНА ===');
-                
-            } catch (error) {
-                console.error('❌ Ошибка диагностики:', error);
-                alert('Ошибка диагностики: ' + error.message);
-            }
-        };
 
         async function checkSession() {
             try {
-                console.log('Проверяем существующую сессию...');
                 const { data: { session }, error } = await supabase.auth.getSession();
                 
                 if (error) {
@@ -235,10 +149,7 @@
                 }
                 
                 if (session) {
-                    console.log('✅ Пользователь уже авторизован, перенаправляем...');
                     window.location.href = "index.html";
-                } else {
-                    console.log('Пользователь не авторизован');
                 }
             } catch (error) {
                 console.error('Ошибка проверки сессии:', error);
@@ -259,11 +170,7 @@
             messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
             messageContainer.classList.remove('hidden');
             
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageContainer.classList.add('hidden');
-                }, 3000);
-            } else {
+            if (type === 'error') {
                 setTimeout(() => {
                     messageContainer.classList.add('hidden');
                 }, 5000);
@@ -295,8 +202,6 @@
             const spinner = document.getElementById('spinner');
             const rememberMe = document.getElementById('rememberMe').checked;
             
-            console.log('Попытка входа с email:', email);
-            
             if (!email || !password) {
                 showMessage('Пожалуйста, заполните все поля', 'error');
                 return;
@@ -313,19 +218,12 @@
             spinner.classList.remove('hidden');
             
             try {
-                console.log('Выполняем авторизацию в Supabase...');
-                
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
                 
-                if (error) {
-                    console.error('Ошибка авторизации:', error);
-                    throw error;
-                }
-                
-                console.log('✅ Авторизация успешна!', data);
+                if (error) throw error;
                 
                 if (rememberMe) {
                     localStorage.setItem('userEmail', email);
@@ -333,13 +231,11 @@
                     localStorage.removeItem('userEmail');
                 }
                 
-                localStorage.setItem('supabase_session', JSON.stringify(data.session));
-                
                 showMessage('Успешный вход! Перенаправление...', 'success');
-                
-                const { data: userData } = await supabase.auth.getUser();
-                console.log('Данные пользователя:', userData);
-                window.location.href = "index.html";
+
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1000);
                 
             } catch (error) {
                 console.error('Ошибка входа:', error);
@@ -353,8 +249,6 @@
                         errorMessage = 'Email не подтвержден. Проверьте вашу почту';
                     } else if (error.message.includes('Too many requests')) {
                         errorMessage = 'Слишком много попыток. Попробуйте позже';
-                    } else if (error.message.includes('fetch')) {
-                        errorMessage = 'Проблема с подключением к Supabase. Проверьте CORS настройки';
                     } else {
                         errorMessage = 'Ошибка входа: ' + error.message;
                     }
@@ -368,39 +262,9 @@
             }
         });
 
-        window.testAuth = async function() {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (error) {
-                alert('Ошибка получения пользователя: ' + error.message);
-            } else if (user) {
-                alert('✅ Пользователь авторизован: ' + user.email);
-            } else {
-                alert('❌ Пользователь не авторизован');
-            }
-        };
-
-        window.createTestUser = async function() {
-            const email = 'test@example.com';
-            const password = '123456';
-            
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password
-            });
-            
-            if (error) {
-                alert('Ошибка создания пользователя: ' + error.message);
-            } else {
-                alert('✅ Тестовый пользователь создан!\nEmail: ' + email + '\nПароль: ' + password);
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Страница login.html загружена');
             checkSession();
             checkSavedEmail();
-            
-            setTimeout(testConnection, 1000);
         });
     </script>
 </body>
