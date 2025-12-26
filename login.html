@@ -94,27 +94,22 @@
     </div>
 
     <script>
-        // 1. Подключаем Supabase JS
         const supabaseScript = document.createElement('script');
         supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
         document.head.appendChild(supabaseScript);
         
         supabaseScript.onload = function() {
-            // 2. Конфиг
             const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
             const SUPABASE_ANON_KEY = 'sb_publishable_kyqffqtlL0F4JvYD6K1zuw_vjT3ucBo';
             
-            // 3. Создаем клиент
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
-            // 4. Проверяем сессию
             supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session) {
                     window.location.href = 'index.html';
                 }
             });
             
-            // 5. Обработка формы
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
@@ -157,7 +152,6 @@
                 }
             });
             
-            // 6. Функция показа сообщений
             function showMessage(message, type) {
                 const messageContainer = document.getElementById('messageContainer');
                 messageContainer.textContent = message;
@@ -166,7 +160,6 @@
                 setTimeout(() => messageContainer.classList.add('hidden'), 3000);
             }
             
-            // 7. Показать/скрыть пароль
             document.getElementById('togglePassword').addEventListener('click', function() {
                 const passwordInput = document.getElementById('password');
                 const icon = this.querySelector('i');
