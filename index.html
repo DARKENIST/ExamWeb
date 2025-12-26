@@ -391,13 +391,11 @@
     <!-- Скрипты -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Инициализация AOS
         AOS.init({
             duration: 800,
             once: true
         });
 
-        // Мобильное меню
         document.getElementById('mobileMenuButton').addEventListener('click', function() {
             const menu = document.getElementById('mobileMenu');
             menu.classList.toggle('hidden');
@@ -406,7 +404,6 @@
                 '<i class="fas fa-times text-2xl"></i>';
         });
 
-        // Анимация счетчиков
         function animateCounter(element, start, end, duration) {
             let startTimestamp = null;
             const step = (timestamp) => {
@@ -420,7 +417,6 @@
             window.requestAnimationFrame(step);
         }
 
-        // Запуск анимации счетчиков при скролле
         function checkCounters() {
             const counters = document.querySelectorAll('.stats-counter');
             counters.forEach(counter => {
@@ -437,22 +433,18 @@
             });
         }
 
-        // Установите начальные значения счетчиков
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('clientsCount').textContent = '12500';
             document.getElementById('itemsCount').textContent = '3500';
             document.getElementById('yearsCount').textContent = '14';
             document.getElementById('successRate').textContent = '97%';
             
-            // Проверка авторизации
             updateAuthSection();
             
-            // Запуск проверки счетчиков
             window.addEventListener('scroll', checkCounters);
-            checkCounters(); // Проверить сразу
+            checkCounters();
         });
 
-        // Функция обновления раздела авторизации
         function updateAuthSection() {
             const authSection = document.getElementById('authSection');
             const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
@@ -486,7 +478,6 @@
             }
         }
 
-        // Функция выхода
         function logout() {
             localStorage.removeItem('userLoggedIn');
             localStorage.removeItem('userName');

@@ -145,14 +145,11 @@
 
     <!-- Supabase и скрипт авторизации -->
     <script>
-        // Конфигурация Supabase
         const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
 
-        // Инициализация Supabase клиента
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Проверка текущей сессии
         async function checkSession() {
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
@@ -163,7 +160,6 @@
                 }
                 
                 if (session) {
-                    // Если пользователь уже авторизован, перенаправляем на главную
                     window.location.href = "index.html";
                 }
             } catch (error) {
@@ -171,7 +167,6 @@
             }
         }
 
-        // Проверка сохраненного email
         function checkSavedEmail() {
             const savedEmail = localStorage.getItem('userEmail');
             if (savedEmail) {
@@ -180,22 +175,14 @@
             }
         }
 
-        // Показать/скрыть сообщения
         function showMessage(message, type = 'error') {
             const messageContainer = document.getElementById('messageContainer');
             messageContainer.textContent = message;
             messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
             messageContainer.classList.remove('hidden');
             
-            // Автоматически скрыть через 5 секунд
-            if (type === 'error') {
-                setTimeout(() => {
-                    messageContainer.classList.add('hidden');
-                }, 5000);
-            }
         }
 
-        // Переключение видимости пароля
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
@@ -211,7 +198,6 @@
             }
         });
 
-        // Обработка формы входа
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -222,26 +208,22 @@
             const spinner = document.getElementById('spinner');
             const rememberMe = document.getElementById('rememberMe').checked;
             
-            // Валидация
             if (!email || !password) {
                 showMessage('Пожалуйста, заполните все поля', 'error');
                 return;
             }
             
-            // Проверка email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 showMessage('Пожалуйста, введите корректный email', 'error');
                 return;
             }
             
-            // Изменяем состояние кнопки
             submitBtn.disabled = true;
             submitText.classList.add('hidden');
             spinner.classList.remove('hidden');
             
             try {
-                // Авторизация через Supabase
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
@@ -249,14 +231,12 @@
                 
                 if (error) throw error;
                 
-                // Сохраняем email если выбрано "Запомнить меня"
                 if (rememberMe) {
                     localStorage.setItem('userEmail', email);
                 } else {
                     localStorage.removeItem('userEmail');
                 }
                 
-                // Показываем сообщение об успехе
                 showMessage('Успешный вход! Перенаправление...', 'success');
 
                     window.location.href = "index.html";
@@ -266,7 +246,6 @@
                 
                 let errorMessage = 'Ошибка входа';
                 
-                // Обработка конкретных ошибок Supabase
                 if (error.message) {
                     if (error.message.includes('Invalid login credentials')) {
                         errorMessage = 'Неверный email или пароль';
@@ -281,14 +260,12 @@
                 
                 showMessage(errorMessage, 'error');
                 
-                // Восстанавливаем состояние кнопки
                 submitBtn.disabled = false;
                 submitText.classList.remove('hidden');
                 spinner.classList.add('hidden');
             }
         });
 
-        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             checkSession();
             checkSavedEmail();
