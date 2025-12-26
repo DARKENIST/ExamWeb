@@ -63,7 +63,8 @@
                             name="email"
                             required
                             class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
-                            placeholder="client@example.com"
+                            placeholder="test@example.com"
+                            value="test@example.com"
                         >
                         <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
@@ -83,6 +84,7 @@
                             required
                             class="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
                             placeholder="Введите пароль"
+                            value="123456"
                         >
                         <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
                         <button 
@@ -103,6 +105,7 @@
                             type="checkbox" 
                             id="rememberMe"
                             class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                            checked
                         >
                         <label for="rememberMe" class="ml-2 text-sm text-gray-700">
                             Запомнить меня
@@ -123,6 +126,17 @@
                     <i class="fas fa-spinner fa-spin ml-2 hidden" id="spinner"></i>
                 </button>
 
+                <!-- Тестовая кнопка для диагностики -->
+                <div class="text-center">
+                    <button 
+                        type="button" 
+                        onclick="testConnection()"
+                        class="text-sm text-blue-600 hover:text-blue-800 mt-2"
+                    >
+                        <i class="fas fa-bug mr-1"></i> Проверить подключение к Supabase
+                    </button>
+                </div>
+
                 <!-- Ссылка на регистрацию -->
                 <div class="text-center mt-4">
                     <p class="text-gray-600">
@@ -140,6 +154,9 @@
             <a href="index.html" class="text-gray-600 hover:text-gray-800 inline-block mr-4">
                 <i class="fas fa-home mr-2"></i>На главную
             </a>
+            <button onclick="testAuth()" class="text-gray-600 hover:text-gray-800 inline-block ml-4">
+                <i class="fas fa-key mr-2"></i>Проверить авторизацию
+            </button>
         </div>
     </div>
 
@@ -148,10 +165,68 @@
         const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
 
+        console.log('Инициализация Supabase с URL:', SUPABASE_URL);
+        console.log('Ключ (первые 20 символов):', SUPABASE_ANON_KEY.substring(0, 20) + '...');
+
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase клиент создан:', supabase);
+
+        // функция для проверки подключения
+        window.testConnection = async function() {
+            console.log('=== НАЧАЛО ДИАГНОСТИКИ ===');
+            
+            try {
+                console.log('1. Тестируем подключение к Supabase API...');
+                
+                const response = await fetch(SUPABASE_URL + '/rest/v1/', {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY
+                    }
+                });
+                
+                console.log('Статус API:', response.status, response.ok ? '✅ OK' : '❌ ERROR');
+                
+                console.log('2. Проверяем таблицу products...');
+                const { data: tableData, error: tableError } = await supabase
+                    .from('products')
+                    .select('*')
+                    .limit(1);
+                
+                if (tableError) {
+                    console.error('❌ Ошибка таблицы:', tableError.message);
+                    alert('Ошибка таблицы: ' + tableError.message + '\n\nСоздайте таблицу products в Supabase!');
+                } else {
+                    console.log('✅ Таблица доступна, записей:', tableData?.length || 0);
+                }
+                
+                console.log('3. Проверяем текущую сессию...');
+                const { data: sessionData } = await supabase.auth.getSession();
+                console.log('Сессия:', sessionData?.session ? '✅ Есть' : '❌ Нет');
+                
+                console.log('4. Проверка CORS...');
+                const corsTest = await fetch(SUPABASE_URL, {
+                    mode: 'cors',
+                    headers: { 'apikey': SUPABASE_ANON_KEY }
+                }).catch(e => e);
+                
+                if (corsTest instanceof Error) {
+                    console.error('❌ CORS ошибка:', corsTest.message);
+                    alert('CORS не настроен! Добавьте в Supabase Settings → API → CORS:\nhttp://localhost:5500\nhttp://localhost:3000\nhttp://127.0.0.1:5500');
+                } else {
+                    console.log('✅ CORS настроен правильно');
+                }
+                
+                console.log('=== ДИАГНОСТИКА ЗАВЕРШЕНА ===');
+                
+            } catch (error) {
+                console.error('❌ Ошибка диагностики:', error);
+                alert('Ошибка диагностики: ' + error.message);
+            }
+        };
 
         async function checkSession() {
             try {
+                console.log('Проверяем существующую сессию...');
                 const { data: { session }, error } = await supabase.auth.getSession();
                 
                 if (error) {
@@ -160,7 +235,10 @@
                 }
                 
                 if (session) {
+                    console.log('✅ Пользователь уже авторизован, перенаправляем...');
                     window.location.href = "index.html";
+                } else {
+                    console.log('Пользователь не авторизован');
                 }
             } catch (error) {
                 console.error('Ошибка проверки сессии:', error);
@@ -181,6 +259,15 @@
             messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
             messageContainer.classList.remove('hidden');
             
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageContainer.classList.add('hidden');
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    messageContainer.classList.add('hidden');
+                }, 5000);
+            }
         }
 
         document.getElementById('togglePassword').addEventListener('click', function() {
@@ -208,6 +295,8 @@
             const spinner = document.getElementById('spinner');
             const rememberMe = document.getElementById('rememberMe').checked;
             
+            console.log('Попытка входа с email:', email);
+            
             if (!email || !password) {
                 showMessage('Пожалуйста, заполните все поля', 'error');
                 return;
@@ -224,12 +313,19 @@
             spinner.classList.remove('hidden');
             
             try {
+                console.log('Выполняем авторизацию в Supabase...');
+                
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('Ошибка авторизации:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Авторизация успешна!', data);
                 
                 if (rememberMe) {
                     localStorage.setItem('userEmail', email);
@@ -237,9 +333,13 @@
                     localStorage.removeItem('userEmail');
                 }
                 
+                localStorage.setItem('supabase_session', JSON.stringify(data.session));
+                
                 showMessage('Успешный вход! Перенаправление...', 'success');
-
-                    window.location.href = "index.html";
+                
+                const { data: userData } = await supabase.auth.getUser();
+                console.log('Данные пользователя:', userData);
+                window.location.href = "index.html";
                 
             } catch (error) {
                 console.error('Ошибка входа:', error);
@@ -253,6 +353,8 @@
                         errorMessage = 'Email не подтвержден. Проверьте вашу почту';
                     } else if (error.message.includes('Too many requests')) {
                         errorMessage = 'Слишком много попыток. Попробуйте позже';
+                    } else if (error.message.includes('fetch')) {
+                        errorMessage = 'Проблема с подключением к Supabase. Проверьте CORS настройки';
                     } else {
                         errorMessage = 'Ошибка входа: ' + error.message;
                     }
@@ -266,9 +368,39 @@
             }
         });
 
+        window.testAuth = async function() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+                alert('Ошибка получения пользователя: ' + error.message);
+            } else if (user) {
+                alert('✅ Пользователь авторизован: ' + user.email);
+            } else {
+                alert('❌ Пользователь не авторизован');
+            }
+        };
+
+        window.createTestUser = async function() {
+            const email = 'test@example.com';
+            const password = '123456';
+            
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                alert('Ошибка создания пользователя: ' + error.message);
+            } else {
+                alert('✅ Тестовый пользователь создан!\nEmail: ' + email + '\nПароль: ' + password);
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('Страница login.html загружена');
             checkSession();
             checkSavedEmail();
+            
+            setTimeout(testConnection, 1000);
         });
     </script>
 </body>
