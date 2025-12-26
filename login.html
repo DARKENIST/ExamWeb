@@ -1,16 +1,18 @@
 <!DOCTYPE HTML>
 <html>
- <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Войти</title>
-  <!-- Tailwind CSS CDN -->
+    <title>Войти</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="description" content="Наш маленький ломбард, всегда готовый принять ваш хлам.">
     <!-- Гугл шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
- <style>
-    .custom-font {
+    <style>
+        .custom-font {
             font-family: 'Playfair Display', serif;
         }
         .gradient-bg {
@@ -26,37 +28,28 @@
         .input-focus:focus {
             box-shadow: 0 0 0 3px rgba(63, 153, 115, 0.1);
         }
-</style>
+    </style>
 </head>
- <body class = "bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <nav>
-        <nav>
-            <div class="container mx-auto px-4">
-                <div class="flex justify-between items-center py-4">
-                <!-- Лого(самого логотипа нету, потому что) -->
-                <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center">
-                        <i class="fas fa-archive mr-2"></i>
-                    </div>
-                    <span class="custom-font text-2xl font-bold text-gray-400">СдамОтдам</span>
-                </div>
-                
-                <!-- Поиск -->
-                <div class="hidden md:flex flex-1 max-w-xl mx-8">
-                    <div class="relative w-full">
-                        <input type="text" class="w-full px-4 py-2 pl-10 pr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Поиск сданных товаров">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    </div>
-                </div>
-            <!--Форма авторизации-->
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Логотип -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-archive text-white text-2xl"></i>
+            </div>
+            <span class="custom-font text-3xl font-bold text-gray-800">СдамОтдам</span>
+            <p class="text-gray-600 mt-2">Войдите в свой аккаунт</p>
+        </div>
+
+        <!-- Форма авторизации -->
         <div class="bg-white rounded-2xl shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Вход в аккаунт</h2>
             
             <form id="loginForm" class="space-y-6">
-                <!-- Сообщения об ошибках/успехе-->
+                <!-- Сообщения об ошибках/успехе -->
                 <div id="messageContainer" class="hidden p-4 rounded-lg"></div>
                 
-                <!--Email-->
+                <!-- Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-envelope mr-2"></i>Email-адрес
@@ -67,7 +60,7 @@
                             id="email" 
                             name="email"
                             required
-                            class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500"
+                            class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
                             placeholder="client@example.com"
                         >
                         <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
@@ -75,7 +68,7 @@
                     <div id="emailError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!--Пароль -->
+                <!-- Пароль -->
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-lock mr-2"></i>Пароль
@@ -101,7 +94,7 @@
                     <div id="passwordError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!--Запомнить меня-->
+                <!-- Запомнить меня -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <input 
@@ -118,47 +111,135 @@
                     </a>
                 </div>
 
-                <!--Кнопка Войти-->
-                <button href="index.html"
+                <!-- Кнопка Войти -->
+                <button
                     type="submit"
                     id="submitBtn"
-                    class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg btn-hover-effect">
+                    class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg btn-hover-effect hover:opacity-90 transition-opacity"
+                >
                     <span id="submitText">Войти</span>
+                    <i class="fas fa-spinner fa-spin ml-2 hidden" id="spinner"></i>
                 </button>
-        </nav>
-        <!--Кнопка CRUD-->
-                <button href="CRUD.html"
-                    type="submit"
-                    id="submitBtn"
-                    class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg btn-hover-effect">
-                    <span id="submitText">Перейти в Админ-панель</span>
-                </button>
-    </nav>
-    <!--Скрипт авторизации-->
-    <script src="auth.js"></script>
 
+                <!-- Ссылка на регистрацию -->
+                <div class="text-center mt-4">
+                    <p class="text-gray-600">
+                        Нет аккаунта? 
+                        <a href="register.html" class="text-green-600 hover:text-green-800 font-medium">
+                            Зарегистрироваться
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Кнопка админ-панели (только для админов после входа) -->
+        <div class="text-center mt-6">
+            <a href="index.html" class="text-gray-600 hover:text-gray-800 inline-block mr-4">
+                <i class="fas fa-home mr-2"></i>На главную
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase SDK и скрипт авторизации -->
     <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDfQqY8RTttiVM_2WP2ER-V3N_lGxNytM8",
-    authDomain: "giveget-d0f7a.firebaseapp.com",
-    projectId: "giveget-d0f7a",
-    storageBucket: "giveget-d0f7a.firebasestorage.app",
-    messagingSenderId: "1003351916916",
-    appId: "1:1003351916916:web:ac081e38fb84f418c1ec21",
-    measurementId: "G-EN2G9J3N6W"
-  };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfQqY8RTttiVM_2WP2ER-V3N_lGxNytM8",
+            authDomain: "giveget-d0f7a.firebaseapp.com",
+            projectId: "giveget-d0f7a",
+            storageBucket: "giveget-d0f7a.firebasestorage.app",
+            messagingSenderId: "1003351916916",
+            appId: "1:1003351916916:web:ac081e38fb84f418c1ec21",
+            measurementId: "G-EN2G9J3N6W"
+        };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
- </body>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = "index.html";
+            }
+        });
+
+        function showMessage(message, type = 'error') {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.textContent = message;
+            messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            messageContainer.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageContainer.classList.add('hidden');
+            }, 5000);
+        }
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const spinner = document.getElementById('spinner');
+            
+            if (!email || !password) {
+                showMessage('Пожалуйста, заполните все поля', 'error');
+                return;
+            }
+            
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                if (document.getElementById('rememberMe').checked) {
+                    localStorage.setItem('userEmail', email);
+                }
+                
+                showMessage('Успешный вход! Перенаправление...', 'success');
+                
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                
+                let errorMessage = 'Ошибка входа';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Неверный формат email';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'Пользователь не найден';
+                        break;
+                    default:
+                        errorMessage = 'Ошибка входа. Проверьте данные';
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+        });
+
+    </script>
+</body>
 </html>

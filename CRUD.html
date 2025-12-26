@@ -1,16 +1,18 @@
 <!DOCTYPE HTML>
 <html>
- <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Админ-панель</title>
-  <!-- Tailwind CSS CDN -->
+    <title>Админ-панель - CRUD</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="description" content="Наш маленький ломбард, всегда готовый принять ваш хлам.">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="Админ-панель для управления продуктами">
     <!-- Гугл шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
- <style>
-    .custom-font {
+    <style>
+        .custom-font {
             font-family: 'Playfair Display', serif;
         }
         .gradient-bg {
@@ -26,159 +28,505 @@
         .input-focus:focus {
             box-shadow: 0 0 0 3px rgba(63, 153, 115, 0.1);
         }
-</style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
- <body class = "bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div>
-        <div class="flex items-center space-x-6">
-            <a href="index.html" class="hidden md:inline text-gray-700 hover:text-green-700 font-medium">Вернуться</a>
-            </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Управление продуктами</h2>
-        <div class="bg-white rounded-2xl shadow-lg p-8">
-          <h3 id="form-title">Взаимодействие</h3>  
-            <div class="form-group">
-                <label></label>
-                <input type="text" id="" placeholder="">
+<body class="bg-gray-100 min-h-screen p-4">
+    <!-- Навигация -->
+    <nav class="bg-white shadow-lg rounded-lg mb-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Логотип -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center">
+                        <i class="fas fa-archive text-white"></i>
+                    </div>
+                    <span class="custom-font text-xl font-bold text-gray-800">СдамОтдам</span>
+                    <span class="text-sm text-gray-500">Админ-панель</span>
+                </div>
+                
+                <!-- Кнопки навигации -->
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-600 hover:text-green-700 font-medium flex items-center">
+                        <i class="fas fa-home mr-2"></i>На главную
+                    </a>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Выйти
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="buttons">
-            <button class="btn-add"
-            onclick="addItem()">Добавить</button>
+    </nav>
 
-            <button class="btn-update"
-            onclick="updateItem()">Обновить</button>
+    <!-- Основной контент -->
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center custom-font">Управление продуктами</h1>
+        <p class="text-gray-600 mb-8 text-center">Добавляйте, редактируйте и удаляйте товары</p>
 
-            <button class="btn-delete"
-            onclick="deleteItem()">Удалить</button>
+        <!-- Форма CRUD -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 id="form-title" class="text-2xl font-bold text-gray-800 mb-6 text-center">Добавить новый товар</h2>
+            
+            <form id="crudForm" class="space-y-6">
+                <!-- ID товара (скрытое поле для редактирования) -->
+                <input type="hidden" id="itemId">
+                
+                <!-- Название товара -->
+                <div>
+                    <label for="productName" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-box mr-2"></i>Название товара
+                    </label>
+                    <input 
+                        type="text" 
+                        id="productName" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
+                        placeholder="Например: Золотое кольцо"
+                        required
+                    >
+                </div>
+
+                <!-- Описание товара -->
+                <div>
+                    <label for="productDescription" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-align-left mr-2"></i>Описание товара
+                    </label>
+                    <textarea 
+                        id="productDescription" 
+                        rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
+                        placeholder="Подробное описание товара..."
+                    ></textarea>
+                </div>
+
+                <!-- Категория -->
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-tag mr-2"></i>Категория
+                    </label>
+                    <select 
+                        id="category" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
+                    >
+                        <option value="">Выберите категорию</option>
+                        <option value="electronics">Электроника</option>
+                        <option value="jewelry">Ювелирные изделия</option>
+                        <option value="antiques">Антиквариат</option>
+                        <option value="tools">Инструменты</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+
+                <!-- Стоимость -->
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-money-bill-wave mr-2"></i>Стоимость (₽)
+                    </label>
+                    <input 
+                        type="number" 
+                        id="price" 
+                        min="0"
+                        step="0.01"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
+                        placeholder="0.00"
+                        required
+                    >
+                </div>
+
+                <!-- Статус -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-info-circle mr-2"></i>Статус
+                    </label>
+                    <select 
+                        id="status" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
+                    >
+                        <option value="available">Доступен</option>
+                        <option value="sold">Продан</option>
+                        <option value="reserved">Забронирован</option>
+                        <option value="archived">В архиве</option>
+                    </select>
+                </div>
+
+                <!-- Кнопки формы -->
+                <div class="flex space-x-4 pt-4">
+                    <button 
+                        type="submit" 
+                        id="submitBtn"
+                        class="flex-1 gradient-bg text-white font-bold py-3 px-4 rounded-lg btn-hover-effect"
+                    >
+                        <i class="fas fa-plus mr-2"></i>
+                        <span id="submitText">Добавить товар</span>
+                    </button>
+                    
+                    <button 
+                        type="button" 
+                        id="cancelBtn"
+                        onclick="cancelEdit()"
+                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg btn-hover-effect hidden"
+                    >
+                        <i class="fas fa-times mr-2"></i>Отмена
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="items-list"
-            id="items-container">
+
+        <!-- Таблица товаров -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Список товаров</h2>
+            
+            <div class="mb-4">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Поиск товаров..."
+                        class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500"
+                    >
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Таблица -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Название</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Категория</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Стоимость</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата создания</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-container" class="bg-white divide-y divide-gray-200">
+                        <!-- Данные будут загружены здесь -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Состояние загрузки/пустая таблица -->
+            <div id="loadingState" class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-3xl text-green-500 mb-4"></i>
+                <p class="text-gray-600">Загрузка товаров...</p>
+            </div>
+            
+            <div id="emptyState" class="text-center py-8 hidden">
+                <i class="fas fa-box-open text-3xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">Нет товаров. Добавьте первый товар!</p>
+            </div>
         </div>
     </div>
-        <script>
-            let items = [];
-            let editId = null;
 
-            function addItem() 
-            {
-                const products = document.getElementById("products").value;
-                const clients = document.getElementById("clients").value;
-                const valuers = document.getElementById("valuers").value;
-                const pledgeAgreements = document.getElementById("pledge agreements").value;
+    <!-- Модальное окно подтверждения удаления -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Подтверждение удаления</h3>
+            <p class="text-gray-600 mb-6">Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.</p>
+            <div class="flex justify-end space-x-4">
+                <button 
+                    onclick="closeModal()"
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                    Отмена
+                </button>
+                <button 
+                    onclick="confirmDelete()"
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                    <i class="fas fa-trash mr-2"></i>Удалить
+                </button>
+            </div>
+        </div>
+    </div>
 
-                const newItem = {
-                    id: Date.now(),
-                    product: products,
-                    client: clients,
-                    valuer: valuers,
-                    pledgeAgreements: pledgeAgreements
+    <!-- Firebase и основной скрипт -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            updateDoc, 
+            deleteDoc, 
+            doc,
+            query,
+            orderBy,
+            Timestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfQqY8RTttiVM_2WP2ER-V3N_lGxNytM8",
+            authDomain: "giveget-d0f7a.firebasestorage.app",
+            projectId: "giveget-d0f7a",
+            storageBucket: "giveget-d0f7a.firebasestorage.app",
+            messagingSenderId: "1003351916916",
+            appId: "1:1003351916916:web:ac081e38fb84f418c1ec21",
+            measurementId: "G-EN2G9J3N6W"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let items = [];
+        let itemToDelete = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Пользователь авторизован:", user.email);
+                await loadItems();
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = "login.html";
+            } catch (error) {
+                console.error("Ошибка при выходе:", error);
+                alert("Ошибка при выходе из системы");
+            }
+        };
+
+        window.showModal = function(itemId) {
+            itemToDelete = itemId;
+            document.getElementById('deleteModal').style.display = 'block';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('deleteModal').style.display = 'none';
+            itemToDelete = null;
+        };
+
+        // Загрузка товаров из Firestore
+        async function loadItems() {
+            try {
+                showLoading(true);
+                
+                const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                items = [];
+                querySnapshot.forEach((doc) => {
+                    items.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderItems();
+                showLoading(false);
+            } catch (error) {
+                console.error("Ошибка загрузки товаров:", error);
+                alert("Не удалось загрузить товары");
+                showLoading(false);
+            }
+        }
+        function renderItems() {
+            const container = document.getElementById('items-container');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (items.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            let html = '';
+            items.forEach(item => {
+                const date = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+                const formattedDate = date.toLocaleDateString('ru-RU');
+                
+                let statusColor = 'bg-green-100 text-green-800';
+                if (item.status === 'sold') statusColor = 'bg-red-100 text-red-800';
+                if (item.status === 'reserved') statusColor = 'bg-yellow-100 text-yellow-800';
+                if (item.status === 'archived') statusColor = 'bg-gray-100 text-gray-800';
+                
+                html += `
+                    <tr id="item-${item.id}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-gray-900">${item.name || 'Без названия'}</div>
+                            ${item.description ? `<div class="text-sm text-gray-500 truncate max-w-xs">${item.description}</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                ${getCategoryName(item.category)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${item.price ? `${parseFloat(item.price).toLocaleString('ru-RU')} ₽` : '0 ₽'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                                ${getStatusName(item.status)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${formattedDate}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="editItem('${item.id}')" class="text-green-600 hover:text-green-900 mr-3">
+                                <i class="fas fa-edit"></i> Редактировать
+                            </button>
+                            <button onclick="showModal('${item.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'electronics': 'Электроника',
+                'jewelry': 'Ювелирные изделия',
+                'antiques': 'Антиквариат',
+                'tools': 'Инструменты',
+                'other': 'Другое'
+            };
+            return categories[category] || category || 'Не указано';
+        }
+
+        function getStatusName(status) {
+            const statuses = {
+                'available': 'Доступен',
+                'sold': 'Продан',
+                'reserved': 'Забронирован',
+                'archived': 'В архиве'
+            };
+            return statuses[status] || status || 'Не указано';
+        }
+
+        document.getElementById('crudForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const itemId = document.getElementById('itemId').value;
+            
+            const itemData = {
+                name: document.getElementById('productName').value.trim(),
+                description: document.getElementById('productDescription').value.trim(),
+                category: document.getElementById('category').value,
+                price: parseFloat(document.getElementById('price').value) || 0,
+                status: document.getElementById('status').value,
+                updatedAt: Timestamp.now()
+            };
+            
+            if (!itemData.name) {
+                alert('Пожалуйста, введите название товара');
+                return;
+            }
+            
+            try {
+                submitBtn.disabled = true;
+                submitText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Сохранение...';
+                
+                if (itemId) {
+                    await updateDoc(doc(db, "products", itemId), itemData);
+                    alert('Товар успешно обновлен!');
+                } else {
+                    itemData.createdAt = Timestamp.now();
+                    itemData.createdBy = currentUser.uid;
+                    await addDoc(collection(db, "products"), itemData);
+                    alert('Товар успешно добавлен!');
                 }
                 
-                items.push(newItem);
-                renderItems();
-                clearForm();
+                await loadItems();
+                cancelEdit();
+                
+            } catch (error) {
+                console.error('Ошибка сохранения товара:', error);
+                alert('Ошибка сохранения товара: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitText.innerHTML = itemId ? 
+                    '<i class="fas fa-save mr-2"></i>Обновить товар' : 
+                    '<i class="fas fa-plus mr-2"></i>Добавить товар';
             }
+        });
 
-            function editItem(id)
-            {
-                const item = items.find(item => item.id === id)
+        window.editItem = async function(itemId) {
+            try {
+                const item = items.find(i => i.id === itemId);
                 if (!item) return;
-
-                editingId = id;
-
-                document.getElementById("products").value = item.products;
-                document.getElementById("clients").value = item.clients;
-                document.getElementById("valuers").value = item.valuers;
-                document.getElementById("pledge agreements").value = item.pledgeAgreements;
-
-                document.querySelector("btn-add").style.display = 'none';
-                document.querySelector("btn-update").style.display = 'inline-block';
-                document.querySelector("btn-delete").style.display = 'inline-block';
-
-                document.getElementById('form-title').textContent = 'Редактировать элемент';
+                
+                document.getElementById('itemId').value = item.id;
+                document.getElementById('productName').value = item.name || '';
+                document.getElementById('productDescription').value = item.description || '';
+                document.getElementById('category').value = item.category || '';
+                document.getElementById('price').value = item.price || 0;
+                document.getElementById('status').value = item.status || 'available';
+                document.getElementById('form-title').textContent = 'Редактировать товар';
+                document.getElementById('submitText').textContent = 'Обновить товар';
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-2"></i>Обновить товар';
+                document.getElementById('cancelBtn').classList.remove('hidden');
+                document.getElementById('crudForm').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Ошибка при редактировании товара:', error);
+                alert('Не удалось загрузить данные товара');
             }
-            function updateItem() 
-            {
-                if(editId === null) return;
+        };
 
-                const itemIndex = items.findIndex(item => item.id === editId)
-                if(itemIndex === -1) return;
+        window.cancelEdit = function() {
+            document.getElementById('crudForm').reset();
+            document.getElementById('itemId').value = '';
+            document.getElementById('form-title').textContent = 'Добавить новый товар';
+            document.getElementById('submitText').textContent = 'Добавить товар';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus mr-2"></i>Добавить товар';
+            document.getElementById('cancelBtn').classList.add('hidden');
+        };
 
-                items[itemIndex] = {
-                    id: editId,
-                };
 
-                editId = null;
-                renderItems();
-                clearForm();
-
-                document.querySelector("btn-add").style.display = 'inline-block';
-                document.querySelector("btn-update").style.display = 'none';
-                document.querySelector("btn-delete").style.display = 'none';
-
-                document.getElementById('form-title').textContent = 'Добавить элемент';
-            }
-
-            function deleteItem(id) {
-                if (confirm('Удалить?')) {
-                    items = items.filter(item => item.id !== id);
-                    renderItems();
-                }
-            }
-
-            function cancelEdit() {
-                editId = null;
-                clearForm();
-
-                document.querySelector("btn-add").style.display = 'inline-block';
-                document.querySelector("btn-update").style.display = 'none';
-                document.querySelector("btn-delete").style.display = 'none';
-
-                document.getElementById('form-title').textContent = 'Отменить';
-            }
-
-            function clearForm() {
-                document.getElementById("products").value;
-                document.getElementById("clients").value;
-                document.getElementById("valuers").value;
-                document.getElementById("pledge agreements").value;
-
-            }
-
-            function renderItems() {
-                const container = document.getElementById('items-containter');
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#items-container tr');
             
-                if(items.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; padding:20px;">Нет элементов</p>';
-                    return;
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
                 }
-
-            }
-
-            renderItems();
-        </script>
-        <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDfQqY8RTttiVM_2WP2ER-V3N_lGxNytM8",
-    authDomain: "giveget-d0f7a.firebaseapp.com",
-    projectId: "giveget-d0f7a",
-    storageBucket: "giveget-d0f7a.firebasestorage.app",
-    messagingSenderId: "1003351916916",
-    appId: "1:1003351916916:web:ac081e38fb84f418c1ec21",
-    measurementId: "G-EN2G9J3N6W"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
- </body>
+            });
+        });
+    </script>
+</body>
 </html>
