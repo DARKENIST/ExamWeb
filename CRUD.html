@@ -11,6 +11,8 @@
     <meta name="description" content="Админ-панель для управления продуктами">
     <!-- Гугл шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .custom-font {
             font-family: 'Playfair Display', serif;
@@ -259,62 +261,73 @@
         </div>
     </div>
 
-    <!-- Firebase и основной скрипт -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged,
-            signOut 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            getDocs, 
-            updateDoc, 
-            deleteDoc, 
-            doc,
-            query,
-            orderBy,
-            Timestamp
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Основной скрипт -->
+    <script>
+        // Конфигурация Supabase
+        const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDfQqY8RTttiVM_2WP2ER-V3N_lGxNytM8",
-            authDomain: "giveget-d0f7a.firebasestorage.app",
-            projectId: "giveget-d0f7a",
-            storageBucket: "giveget-d0f7a.firebasestorage.app",
-            messagingSenderId: "1003351916916",
-            appId: "1:1003351916916:web:ac081e38fb84f418c1ec21",
-            measurementId: "G-EN2G9J3N6W"
-        };
+        // Инициализация Supabase клиента
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null;
         let items = [];
         let itemToDelete = null;
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                console.log("Пользователь авторизован:", user.email);
+        // Проверка аутентификации
+        async function checkAuth() {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    console.error('Ошибка проверки сессии:', error);
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                console.log('Пользователь авторизован:', session.user.email);
                 await loadItems();
-            } else {
-                window.location.href = "login.html";
+            } catch (error) {
+                console.error('Ошибка аутентификации:', error);
+                window.location.href = 'login.html';
             }
-        });
+        }
+
+        // Загрузка товаров
+        async function loadItems() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                items = data || [];
+                renderItems();
+                
+                // Скрываем спиннер загрузки
+                document.getElementById('loadingState').classList.add('hidden');
+                
+            } catch (error) {
+                console.error('Ошибка загрузки товаров:', error);
+                alert('Не удалось загрузить товары: ' + error.message);
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
 
         window.logout = async function() {
             try {
-                await signOut(auth);
-                window.location.href = "login.html";
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                window.location.href = 'login.html';
             } catch (error) {
-                console.error("Ошибка при выходе:", error);
-                alert("Ошибка при выходе из системы");
+                console.error('Ошибка при выходе:', error);
+                alert('Ошибка при выходе из системы');
             }
         };
 
@@ -328,30 +341,31 @@
             itemToDelete = null;
         };
 
-        // Загрузка товаров из Firestore
-        async function loadItems() {
+        window.confirmDelete = async function() {
+            if (!itemToDelete) return;
+            
             try {
-                showLoading(true);
-                
-                const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                
-                items = [];
-                querySnapshot.forEach((doc) => {
-                    items.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', itemToDelete);
+
+                if (error) throw error;
+
+                // Удаляем товар из локального массива
+                items = items.filter(item => item.id !== itemToDelete);
                 renderItems();
-                showLoading(false);
+                
+                closeModal();
+                alert('Товар успешно удален!');
+                
             } catch (error) {
-                console.error("Ошибка загрузки товаров:", error);
-                alert("Не удалось загрузить товары");
-                showLoading(false);
+                console.error('Ошибка удаления товара:', error);
+                alert('Ошибка удаления товара: ' + error.message);
+                closeModal();
             }
-        }
+        };
+
         function renderItems() {
             const container = document.getElementById('items-container');
             const emptyState = document.getElementById('emptyState');
@@ -366,7 +380,7 @@
             
             let html = '';
             items.forEach(item => {
-                const date = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+                const date = item.created_at ? new Date(item.created_at) : new Date();
                 const formattedDate = date.toLocaleDateString('ru-RU');
                 
                 let statusColor = 'bg-green-100 text-green-800';
@@ -432,6 +446,7 @@
             return statuses[status] || status || 'Не указано';
         }
 
+        // Обработка формы
         document.getElementById('crudForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -445,7 +460,7 @@
                 category: document.getElementById('category').value,
                 price: parseFloat(document.getElementById('price').value) || 0,
                 status: document.getElementById('status').value,
-                updatedAt: Timestamp.now()
+                updated_at: new Date().toISOString()
             };
             
             if (!itemData.name) {
@@ -458,12 +473,31 @@
                 submitText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Сохранение...';
                 
                 if (itemId) {
-                    await updateDoc(doc(db, "products", itemId), itemData);
+                    // Обновление существующего товара
+                    const { error } = await supabase
+                        .from('products')
+                        .update(itemData)
+                        .eq('id', itemId);
+
+                    if (error) throw error;
                     alert('Товар успешно обновлен!');
                 } else {
-                    itemData.createdAt = Timestamp.now();
-                    itemData.createdBy = currentUser.uid;
-                    await addDoc(collection(db, "products"), itemData);
+                    // Добавление нового товара
+                    itemData.created_at = new Date().toISOString();
+                    
+                    // Получаем текущего пользователя
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        itemData.created_by = user.id;
+                    }
+                    
+                    const { data, error } = await supabase
+                        .from('products')
+                        .insert([itemData])
+                        .select()
+                        .single();
+
+                    if (error) throw error;
                     alert('Товар успешно добавлен!');
                 }
                 
@@ -513,7 +547,7 @@
             document.getElementById('cancelBtn').classList.add('hidden');
         };
 
-
+        // Поиск
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('#items-container tr');
@@ -527,6 +561,9 @@
                 }
             });
         });
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
 </html>

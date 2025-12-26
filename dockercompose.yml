@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    container_name: lombard-web
+    ports:
+      - "8080:80"  # localhost:8080 , контейнер:80
+    volumes:
+      - ./:/usr/share/nginx/html  
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
