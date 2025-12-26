@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Войти</title>
+    <title>Регистрация</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta name="description" content="Наш маленький ломбард, всегда готовый принять ваш хлам.">
     <!-- Гугл шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .custom-font {
             font-family: 'Playfair Display', serif;
@@ -40,14 +40,14 @@
                 <i class="fas fa-archive text-white text-2xl"></i>
             </div>
             <span class="custom-font text-3xl font-bold text-gray-800">СдамОтдам</span>
-            <p class="text-gray-600 mt-2">Войдите в свой аккаунт</p>
+            <p class="text-gray-600 mt-2">Создайте новый аккаунт</p>
         </div>
 
-        <!-- Форма авторизации -->
+        <!-- Форма регистрации -->
         <div class="bg-white rounded-2xl shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Вход в аккаунт</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Регистрация</h2>
             
-            <form id="loginForm" class="space-y-6">
+            <form id="registerForm" class="space-y-6">
                 <!-- Сообщения об ошибках/успехе -->
                 <div id="messageContainer" class="hidden p-4 rounded-lg"></div>
                 
@@ -63,7 +63,7 @@
                             name="email"
                             required
                             class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
-                            placeholder="client@example.com"
+                            placeholder="ваш@email.com"
                         >
                         <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
@@ -81,8 +81,9 @@
                             id="password" 
                             name="password"
                             required
+                            minlength="6"
                             class="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
-                            placeholder="Введите пароль"
+                            placeholder="Не менее 6 символов"
                         >
                         <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
                         <button 
@@ -96,83 +97,82 @@
                     <div id="passwordError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Запомнить меня -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
+                <!-- Подтверждение пароля -->
+                <div>
+                    <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Подтвердите пароль
+                    </label>
+                    <div class="relative">
                         <input 
-                            type="checkbox" 
-                            id="rememberMe"
-                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-green-500"
+                            placeholder="Повторите пароль"
                         >
-                        <label for="rememberMe" class="ml-2 text-sm text-gray-700">
-                            Запомнить меня
-                        </label>
+                        <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                        <button 
+                            type="button" 
+                            id="toggleConfirmPassword"
+                            class="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+                        >
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
-                    <a href="forgot-password.html" class="text-sm text-green-600 hover:text-green-800">
-                        Забыли пароль?
-                    </a>
+                    <div id="confirmPasswordError" class="text-red-500 text-sm mt-1 hidden"></div>
                 </div>
 
-                <!-- Кнопка Войти -->
+                <!-- Согласие с условиями -->
+                <div class="flex items-center">
+                    <input 
+                        type="checkbox" 
+                        id="terms"
+                        required
+                        class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                    >
+                    <label for="terms" class="ml-2 text-sm text-gray-700">
+                        Я согласен с <a href="#" class="text-green-600 hover:text-green-800">условиями использования</a>
+                    </label>
+                </div>
+
+                <!-- Кнопка Зарегистрироваться -->
                 <button
                     type="submit"
                     id="submitBtn"
                     class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg btn-hover-effect hover:opacity-90 transition-opacity"
                 >
-                    <span id="submitText">Войти</span>
+                    <span id="submitText">Зарегистрироваться</span>
                     <i class="fas fa-spinner fa-spin ml-2 hidden" id="spinner"></i>
                 </button>
 
-                <!-- Ссылка на регистрацию -->
+                <!-- Ссылка на вход -->
                 <div class="text-center mt-4">
                     <p class="text-gray-600">
-                        Нет аккаунта? 
-                        <a href="register.html" class="text-green-600 hover:text-green-800 font-medium">
-                            Зарегистрироваться
+                        Уже есть аккаунт? 
+                        <a href="login.html" class="text-green-600 hover:text-green-800 font-medium">
+                            Войти
                         </a>
                     </p>
                 </div>
             </form>
         </div>
 
-        <!-- Кнопка админ-панели (только для админов после входа) -->
+        <!-- Кнопка на главную -->
         <div class="text-center mt-6">
-            <a href="index.html" class="text-gray-600 hover:text-gray-800 inline-block mr-4">
+            <a href="index.html" class="text-gray-600 hover:text-gray-800 inline-block">
                 <i class="fas fa-home mr-2"></i>На главную
             </a>
         </div>
     </div>
 
-    <!-- Supabase и скрипт авторизации -->
+    <!-- Supabase и скрипт регистрации -->
     <script>
         const SUPABASE_URL = 'https://kukhdnfgpludshiixhpv.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_nSJNZrftLtBLla6nwKmsIQ_vBCHyfPD';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        async function checkSession() {
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                
-                if (error) {
-                    console.error('Ошибка проверки сессии:', error);
-                    return;
-                }
-                
-                if (session) {
-                    window.location.href = "index.html";
-                }
-            } catch (error) {
-                console.error('Ошибка проверки сессии:', error);
-            }
-        }
-
-        function checkSavedEmail() {
-            const savedEmail = localStorage.getItem('userEmail');
-            if (savedEmail) {
-                document.getElementById('email').value = savedEmail;
-                document.getElementById('rememberMe').checked = true;
-            }
-        }
 
         function showMessage(message, type = 'error') {
             const messageContainer = document.getElementById('messageContainer');
@@ -180,6 +180,8 @@
             messageContainer.className = `p-4 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
             messageContainer.classList.remove('hidden');
             
+                    messageContainer.classList.add('hidden');
+
         }
 
         document.getElementById('togglePassword').addEventListener('click', function() {
@@ -197,17 +199,32 @@
             }
         });
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                confirmPasswordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             const submitBtn = document.getElementById('submitBtn');
             const submitText = document.getElementById('submitText');
             const spinner = document.getElementById('spinner');
-            const rememberMe = document.getElementById('rememberMe').checked;
             
-            if (!email || !password) {
+            if (!email || !password || !confirmPassword) {
                 showMessage('Пожалуйста, заполните все поля', 'error');
                 return;
             }
@@ -218,40 +235,49 @@
                 return;
             }
             
+            if (password.length < 6) {
+                showMessage('Пароль должен быть не менее 6 символов', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('Пароли не совпадают', 'error');
+                return;
+            }
+            
             submitBtn.disabled = true;
             submitText.classList.add('hidden');
             spinner.classList.remove('hidden');
             
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password
                 });
                 
                 if (error) throw error;
                 
-                if (rememberMe) {
-                    localStorage.setItem('userEmail', email);
-                } else {
-                    localStorage.removeItem('userEmail');
-                }
+                showMessage('Регистрация успешна! Вы можете войти в аккаунт.', 'success');
                 
-                showMessage('Успешный вход! Перенаправление...', 'success');
+                document.getElementById('registerForm').reset();
+                
+                    window.location.href = 'login.html';
                 
             } catch (error) {
-                console.error('Ошибка входа:', error);
+                console.error('Ошибка регистрации:', error);
                 
-                let errorMessage = 'Ошибка входа';
+                let errorMessage = 'Ошибка регистрации';
                 
+ 
                 if (error.message) {
-                    if (error.message.includes('Invalid login credentials')) {
-                        errorMessage = 'Неверный email или пароль';
-                    } else if (error.message.includes('Email not confirmed')) {
-                        errorMessage = 'Email не подтвержден. Проверьте вашу почту';
-                    } else if (error.message.includes('Too many requests')) {
-                        errorMessage = 'Слишком много попыток. Попробуйте позже';
+                    if (error.message.includes('already registered')) {
+                        errorMessage = 'Пользователь с таким email уже зарегистрирован';
+                    } else if (error.message.includes('weak password')) {
+                        errorMessage = 'Пароль слишком слабый';
+                    } else if (error.message.includes('email already in use')) {
+                        errorMessage = 'Этот email уже используется';
                     } else {
-                        errorMessage = 'Ошибка входа: ' + error.message;
+                        errorMessage = 'Ошибка регистрации: ' + error.message;
                     }
                 }
                 
@@ -264,8 +290,11 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            checkSession();
-            checkSavedEmail();
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    window.location.href = 'index.html';
+                }
+            });
         });
     </script>
 </body>
